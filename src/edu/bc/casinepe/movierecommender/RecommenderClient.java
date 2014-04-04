@@ -20,15 +20,17 @@ import android.util.Log;
 public class RecommenderClient {
 	
 	private HttpClient client;
+	private long userId;
 	public static final String URI = "http://localhost:8080/";
 	
-	public RecommenderClient() {
+	public RecommenderClient(long userId) {
+		this.userId = userId;
 		client = new DefaultHttpClient();
 	}
 	
-	// @return Random list of movies
+	// @return Recommended list of movies
 	public Movies getMovies() {
-		HttpGet httpGet = new HttpGet(URI + "movies/random");
+		HttpGet httpGet = new HttpGet(URI + "movies/");
 		
 		String jsonResponse = makeRequest(httpGet);
 		

@@ -5,7 +5,10 @@ import android.app.Activity;
 import android.view.Menu;
 
 public class MainActivity extends Activity {
-
+	
+	//Default user_id used to access movies and recommendations
+	public static final long USER_ID = 40;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
