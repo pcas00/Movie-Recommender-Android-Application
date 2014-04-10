@@ -64,8 +64,9 @@ public class RecommenderClient {
 			for (int i=0; i<entries.length(); i++) {
 				JSONObject entry      = entries.getJSONObject(i);
 				long id               = entry.getLong("id");
-				String title          = entry.getString("title");	
-				movies.addMovie(new Movie(id, title));				
+				String title          = entry.getString("title");
+				float rating		  = entry.getLong("rating");
+				movies.addMovie(new Movie(id, title, rating));				
 			}
 			return movies;
 		} catch (JSONException e) {
@@ -86,8 +87,9 @@ public class RecommenderClient {
 			JSONObject entry      = entries.getJSONObject(0);
 			long id               = entry.getLong("id");
 			String title          = entry.getString("title");			
+			float rating		  = entry.getLong("rating");
 			
-			return new Movie(id, title);
+			return new Movie(id, title, rating);
 
 		} catch (JSONException e) {
 			return null;

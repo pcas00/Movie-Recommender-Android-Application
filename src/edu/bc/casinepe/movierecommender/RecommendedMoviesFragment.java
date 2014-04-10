@@ -1,5 +1,6 @@
 package edu.bc.casinepe.movierecommender;
 
+import java.util.ArrayList;
 import java.util.List;
 import android.app.Fragment;
 import android.os.Bundle;
@@ -7,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 public class RecommendedMoviesFragment extends Fragment {
@@ -28,8 +30,12 @@ public class RecommendedMoviesFragment extends Fragment {
 		if (client == null) {
 			client = new RecommenderClient(MainActivity.USER_ID);
 		}
-		
+				
 		//Need an adapter for movies so that a view can be inflated with data
+		MoviesAdapter adapter = new MoviesAdapter(this.getView().getContext(), movies);
+		listOfMovies.setAdapter(adapter);
+		
+		getMoviesAndDisplay();
 		
 		return rootView;
 	}
@@ -46,7 +52,11 @@ public class RecommendedMoviesFragment extends Fragment {
 			@Override
 			public void run() {
 				Movies recommendedMovies = client.getMovies();
-				movies = recommendedMovies.getMovies();
+				List<Movie> allMovies = recommendedMovies.getMovies();
+				for (Movie m : movies) {
+					//Add to list of movies; adapter will handle adding them
+					movies.add(m);
+				}
 			}
 		}).start();
 	}
