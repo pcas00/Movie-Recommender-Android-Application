@@ -70,7 +70,6 @@ public class RecommenderClient {
 				String title          = entry.getString("title");
 				float rating		  = entry.getLong("rating");
 				Movie m = new Movie(id, title, rating);
-				Log.i(this.getClass().toString(), "Movie added: " + m);
 				movies.addMovie(m);		
 			}
 			

@@ -175,10 +175,9 @@ class AllMoviesFragment extends ListFragment {
 		movies = new ArrayList<Movie>();
 		//Need an adapter for movies so that a view can be inflated with data
 		MoviesAdapter adapter = new MoviesAdapter(getActivity(), movies);
-		//setListAdapter(adapter);
-		listOfMovies.setAdapter(adapter);
-				
-		getMoviesAndDisplay();
+		setListAdapter(adapter);
+		//listOfMovies.setAdapter(adapter);
+		new DownloadRecommendedMoviesTask(adapter, movies).execute(MainActivity.USER_ID);		
 
 		return rootView;
 	}
@@ -186,26 +185,8 @@ class AllMoviesFragment extends ListFragment {
 	public void onResume() {
 		super.onResume();
 	}
-	
-	public void getMoviesAndDisplay() {
-		Log.i(this.getClass().toString(), "GetMoviesAndDisplay()");
-		//TODO get list view in order to append results to
-		(new Thread() {
-			@Override
-			public void run() {
-				RecommenderClient client = new RecommenderClient(MainActivity.USER_ID);
-				Movies recommendedMovies = client.getMovies();
-				List<Movie> allMovies = recommendedMovies.getMovies();
-				//TODO movies2 should be movies list from class
-				for (Movie m : allMovies) {
-					//Add to list of movies; adapter will handle adding them
-					Log.i(this.getClass().toString(), "Adding movie: " + m + " to ListView of movies");
-					movies.add(m);
-				}
-			}
-		}).start();
-	}
 }
+	
 
 class MyMoviesFragment extends Fragment {
 
@@ -213,10 +194,10 @@ class MyMoviesFragment extends Fragment {
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.recommended_movies_fragment,
 				container, false);
+		
 		return rootView;
 	}
 }
