@@ -33,19 +33,22 @@ public class MoviesAdapter extends ArrayAdapter<Movie>{
 		} else {
 			view = convertView;
 		}
+		Log.i(this.getClass().toString(), "Layout is: " + view);
 		
-		TextView movieText = (TextView) convertView.findViewById(R.id.movieItemTextView);
-		ImageView movieImage = (ImageView) convertView.findViewById(R.id.movieItemImageView);
+		TextView movieText = (TextView) view.findViewById(R.id.movie_item_title_text_view);
+		ImageView movieImage = (ImageView) view.findViewById(R.id.movie_image_view);
 		
 		movieText.setText(movie.getTitle() + " (" + movie.getRating() + ")");
 		
 		//TODO helper method to retrieve image from IMDB
-		URL imageUrl;
-		try {
-			imageUrl = new URL("http://www.google.com");
-			Bitmap imageValue = BitmapFactory.decodeStream(imageUrl.openConnection().getInputStream());
-			movieImage.setImageBitmap(imageValue);
-		} catch (MalformedURLException e) {
+		//URL imageUrl;
+		//try {
+			/*
+			imageUrl = new URL("http://ia.media-imdb.com/images/M/MV5BMzU0NDY0NDEzNV5BMl5BanBnXkFtZTgwOTIxNDU1MDE@._V1_SY317_CR0,0,214,317_AL_.jpg");
+			Bitmap imageValue = BitmapFactory.decodeStream(imageUrl.openConnection().getInputStream());*/
+			
+		movieImage.setImageResource(R.drawable.no_movie_poster);
+		/*} catch (MalformedURLException e) {
 			//TODO set as default no movie image reference
 			//movieImage.setImageBitmap();
 			Log.e(MoviesAdapter.class.toString(), e.getMessage());
@@ -53,10 +56,10 @@ public class MoviesAdapter extends ArrayAdapter<Movie>{
 		} catch (IOException e) {
 			Log.e(MoviesAdapter.class.toString(), e.getMessage());
 			e.printStackTrace();
-		}
+		}*/
 
 		
-		return convertView;
+		return view;
 		
 	}
 

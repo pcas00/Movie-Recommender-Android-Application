@@ -5,5 +5,7 @@
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
     <string name="recommend_movies">Recommended Movies</string>
+    <string name="recommended_movies_title">Recommended Movies</string>
+    <string name="my_movies">My Movies</string>
 
 </resources>

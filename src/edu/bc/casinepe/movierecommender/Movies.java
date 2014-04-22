@@ -11,7 +11,7 @@ public class Movies {
 		movies = new ArrayList<Movie>();
 	}
 	
-	public List<Movie> getMovies() { return movies; }
+	public List<Movie> getMovies() { return this.movies; }
 	public void addMovie(Movie m) { movies.add(m); }
 
 }

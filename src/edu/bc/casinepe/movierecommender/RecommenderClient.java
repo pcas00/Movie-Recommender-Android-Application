@@ -30,12 +30,13 @@ public class RecommenderClient {
 	
 	// @return Recommended list of movies
 	public Movies getMovies() {
-		HttpGet httpGet = new HttpGet(URI + "movies/");
+		/*HttpGet httpGet = new HttpGet(URI + "movies/");
 		
-		String jsonResponse = makeRequest(httpGet);
+		String jsonResponse = makeRequest(httpGet);*/
 		
-		parseJsonMovies(jsonResponse);
-		return new Movies();
+		String jsonResponse = "{\"movies\":[{\"title\":\"Open Season (1996)\",\"rating\":3.0,\"ratingsCount\":0,\"movieId\":402},{\"title\":\"Running Free (2000)\",\"rating\":4.0,\"ratingsCount\":0,\"movieId\":3647},{\"title\":\"Condition Red (1995)\",\"rating\":4.0,\"ratingsCount\":0,\"movieId\":624},{\"title\":\"Smoking/No Smoking (1993)\",\"rating\":4.0,\"ratingsCount\":0,\"movieId\":3530},{\"title\":\"Nueba Yol (1995)\",\"rating\":1.0,\"ratingsCount\":0,\"movieId\":133}]}";
+		
+		return parseJsonMovies(jsonResponse);
 		
 	}
 	
@@ -59,15 +60,20 @@ public class RecommenderClient {
 		String result = "";
 		try {
 			JSONObject jObject   = new JSONObject(jsonString);
+			//Log.i(this.getClass().toString(), "JSON Object: " + jObject);
 			Movies movies = new Movies();
-			JSONArray entries    = jObject.getJSONObject("responseData").getJSONArray("movies");
+			JSONArray entries    = jObject.getJSONArray("movies");
+			Log.i(this.getClass().toString(), "Entries are: " + entries.length());
 			for (int i=0; i<entries.length(); i++) {
 				JSONObject entry      = entries.getJSONObject(i);
-				long id               = entry.getLong("id");
+				long id               = entry.getLong("movieId");
 				String title          = entry.getString("title");
 				float rating		  = entry.getLong("rating");
-				movies.addMovie(new Movie(id, title, rating));				
+				Movie m = new Movie(id, title, rating);
+				Log.i(this.getClass().toString(), "Movie added: " + m);
+				movies.addMovie(m);		
 			}
+			
 			return movies;
 		} catch (JSONException e) {
 			return null;
