@@ -1,9 +1,13 @@
-package edu.bc.casinepe.movierecommender;
+package tasks;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import edu.bc.casinepe.movierecommender.R;
+import edu.bc.casinepe.movierecommender.RecommenderClient;
+import edu.bc.casinepe.movierecommender.R.drawable;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -35,8 +39,10 @@ public class MovieImageTask extends AsyncTask<String, String, Bitmap> {
 	
 	@Override
 	protected Bitmap doInBackground(String... params) {
-		//return getImageFromTitle(params[0]);	
-		return null;
+		Log.i(this.getClass().toString(), "Title is " + params[0]);
+		Bitmap bm = RecommenderClient.getImageFromTitle(params[0]);	
+		Log.i(this.getClass().toString(), "Bit is: " + bm);
+		return bm;
 	}
 
 

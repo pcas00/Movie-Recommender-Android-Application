@@ -1,19 +1,22 @@
-package edu.bc.casinepe.movierecommender;
+package tasks;
 
 import java.util.List;
 
-import android.app.Activity;
+import edu.bc.casinepe.movierecommender.MoviesAdapter;
+import edu.bc.casinepe.movierecommender.RecommenderClient;
+
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Log;
+import api.Movie;
+import api.Movies;
 
-public class GetRecommendedMoviesTask extends AsyncTask<Long, Void, Movies> {
+public class GetMoviesTask extends AsyncTask<Long, Void, Movies> {
 	private MoviesAdapter adapter;
 	private List<Movie> listOfMovies;
 	private ProgressDialog dialog;
 	
-	public GetRecommendedMoviesTask(MoviesAdapter adapter, List<Movie> listOfMovies, Context context) {
+	public GetMoviesTask(MoviesAdapter adapter, List<Movie> listOfMovies, Context context) {
 		this.adapter = adapter;
 		this.listOfMovies = listOfMovies;
 		this.dialog = new ProgressDialog(context);
@@ -22,7 +25,7 @@ public class GetRecommendedMoviesTask extends AsyncTask<Long, Void, Movies> {
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        dialog.setMessage("Loading recommended movies...");
+        dialog.setMessage("Loading your movies...");
         dialog.setIndeterminate(false);
         dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         dialog.setCancelable(true);
@@ -31,12 +34,12 @@ public class GetRecommendedMoviesTask extends AsyncTask<Long, Void, Movies> {
     
 	@Override
 	protected Movies doInBackground(Long... args) {
-		return getRecommendedMovies(args[0]);
+		return getRatedMovies(args[0]);
 	}
 	
-	private Movies getRecommendedMovies(long userId) {
+	private Movies getRatedMovies(long userId) {
 		RecommenderClient client = new RecommenderClient(userId);
-		Movies recommendedMovies = client.getRecommendedMovies();
+		Movies recommendedMovies = client.getRatedMovies();
 		return recommendedMovies;
 
 	}
@@ -52,5 +55,5 @@ public class GetRecommendedMoviesTask extends AsyncTask<Long, Void, Movies> {
 		dialog.dismiss();
 		
 	}
-
+	
 }

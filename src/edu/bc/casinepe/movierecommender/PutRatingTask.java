@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
+import api.Movie;
 
 public class PutRatingTask extends AsyncTask<Movie, Void, Movie> {
 	private ProgressDialog dialog;
@@ -32,11 +33,12 @@ public class PutRatingTask extends AsyncTask<Movie, Void, Movie> {
 		RecommenderClient client = new RecommenderClient(MainActivity.USER_ID);
 		return client.rateMovie(MainActivity.USER_ID, movie);
 	}
-	protected void onPostExecute(Movies recommendedMovies) {
+	protected void onPostExecute(Movie ratedMovie) {
 		dialog.dismiss();
+		String msg = context.getString(R.string.rated_movie_d_msg);
 		AlertDialog.Builder builder = new AlertDialog.Builder(context);
 		builder.setTitle(R.string.rated_movie_d_title)
-			   .setMessage(R.string.rated_movie_d_msg)
+			   .setMessage(msg + " with a " + ratedMovie.getRating())
 			   .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
 						dialog.cancel();
@@ -44,8 +46,8 @@ public class PutRatingTask extends AsyncTask<Movie, Void, Movie> {
 			   });
 
 		// Create the AlertDialog
-		AlertDialog dialog = builder.create();
-		dialog.show();
+		AlertDialog alertDialog = builder.create();
+		alertDialog.show();
 	}
 	
 }

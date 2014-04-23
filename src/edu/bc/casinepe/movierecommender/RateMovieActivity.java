@@ -1,5 +1,7 @@
 package edu.bc.casinepe.movierecommender;
 
+import tasks.GetMovieTask;
+
 import com.google.gson.Gson;
 
 import android.os.Bundle;
@@ -15,6 +17,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import api.Movie;
 
 public class RateMovieActivity extends Activity {
 	private Movie movie;

@@ -1,5 +1,10 @@
-package edu.bc.casinepe.movierecommender;
+package tasks;
 import java.util.List;
+
+import edu.bc.casinepe.movierecommender.MainActivity;
+import edu.bc.casinepe.movierecommender.R;
+import edu.bc.casinepe.movierecommender.RecommenderClient;
+import edu.bc.casinepe.movierecommender.R.drawable;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -9,6 +14,7 @@ import android.util.Log;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import api.Movie;
 
 
 public class GetMovieTask extends AsyncTask<Movie, Void, Movie>{
@@ -53,6 +59,7 @@ public class GetMovieTask extends AsyncTask<Movie, Void, Movie>{
 	// onPostExecute displays the results of the AsyncTask.
 	protected void onPostExecute(Movie m) {
 		movieTitle.setText(m.getTitle());
+		Log.i(this.getClass().toString(), "Rating is " + m.getRating());
 		movieRating.setRating(m.getRating());
 		Bitmap bm = m.getBitmap();
 		if (bm == null) {

@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import tasks.GetMoviesTask;
+import tasks.GetRecommendedMoviesTask;
+
 import com.google.gson.Gson;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -28,6 +31,7 @@ import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import api.Movie;
 
 public class MainActivity extends FragmentActivity implements
 ActionBar.TabListener {
@@ -180,7 +184,7 @@ class AllMoviesFragment extends ListFragment {
 		//Need an adapter for movies so that a view can be inflated with data
 		MoviesAdapter adapter = new MoviesAdapter(getActivity(), movies);
 		setListAdapter(adapter);
-		//listOfMovies.setAdapter(adapter);
+
 		ConnectivityManager connMgr = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 

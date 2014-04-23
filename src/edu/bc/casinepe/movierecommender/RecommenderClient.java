@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -14,20 +15,28 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import tasks.MovieImageTask;
+
+import com.google.gson.Gson;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
+import api.Movie;
+import api.Movies;
+import api.Rating;
 
 public class RecommenderClient {
 
 	private HttpClient client;
 	private long userId;
-	public static final String URI = "http://localhost:8080/";
+	public static final String URI = "http://10.0.2.2:8080/";
 
 	public RecommenderClient(long userId) {
 		this.userId = userId;
@@ -60,11 +69,11 @@ public class RecommenderClient {
 
 	// @return Recommended list of movies
 	public Movies getRecommendedMovies() {
-		/*HttpGet httpGet = new HttpGet(URI + "movies/");
+		HttpGet httpGet = new HttpGet(URI + "movies/db/" + this.userId);
 
-		String jsonResponse = makeRequest(httpGet);*/
-
-		String jsonResponse = "{\"movies\":[{\"title\":\"Open Season (1996)\",\"rating\":3.0,\"ratingsCount\":0,\"movieId\":402},{\"title\":\"Running Free (2000)\",\"rating\":4.0,\"ratingsCount\":0,\"movieId\":3647},{\"title\":\"Condition Red (1995)\",\"rating\":4.0,\"ratingsCount\":0,\"movieId\":624},{\"title\":\"Smoking/No Smoking (1993)\",\"rating\":4.0,\"ratingsCount\":0,\"movieId\":3530},{\"title\":\"Nueba Yol (1995)\",\"rating\":1.0,\"ratingsCount\":0,\"movieId\":133}]}";
+		String jsonResponse = makeRequest(httpGet);
+		Log.i(this.getClass().toString(), "HTTP get rec movies: " + jsonResponse);
+		//String jsonResponse = "{\"movies\":[{\"title\":\"Open Season (1996)\",\"rating\":3.0,\"ratingsCount\":0,\"movieId\":402},{\"title\":\"Running Free (2000)\",\"rating\":4.0,\"ratingsCount\":0,\"movieId\":3647},{\"title\":\"Condition Red (1995)\",\"rating\":4.0,\"ratingsCount\":0,\"movieId\":624},{\"title\":\"Smoking/No Smoking (1993)\",\"rating\":4.0,\"ratingsCount\":0,\"movieId\":3530},{\"title\":\"Nueba Yol (1995)\",\"rating\":1.0,\"ratingsCount\":0,\"movieId\":133}]}";
 
 		return parseJsonMovies(jsonResponse);
 
@@ -83,9 +92,9 @@ public class RecommenderClient {
 	}
 
 	public Movie getMovie(long movieId) {
-		/*HttpGet httpGet = new HttpGet(URI + "");
-		String jsonResponse = makeRequest(httpGet);*/
-		String jsonResponse = "{\"movies\":[{\"title\":\"Open Season (1996)\",\"rating\":3.0,\"ratingsCount\":0,\"movieId\":402}]}";
+		HttpGet httpGet = new HttpGet(URI + "movie/" + movieId);
+		String jsonResponse = makeRequest(httpGet);
+		//String jsonResponse = "{\"movies\":[{\"title\":\"Open Season (1996)\",\"rating\":3.0,\"ratingsCount\":0,\"movieId\":402}]}";
 
 		return parseJsonMovie(jsonResponse);
 	}
@@ -94,9 +103,26 @@ public class RecommenderClient {
 	 *	@param m A movie with movie id and rating
 	 */
 	public Movie rateMovie(long userId, Movie m) {		
-		HttpPut httpPut = new HttpPut(URI + "movie/" + m.getId() + "/rate");
-		String jsonResponse = makeRequest(httpPut);
-
+		HttpPut httpPut = new HttpPut(URI + "rate/" + m.getId());
+		Log.i(this.getClass().toString(), "HTTP Put for user " + userId + " to " + URI + "rate/" + m.getId());
+		
+		Gson gson = new Gson();
+		Rating rating = new Rating(userId, m.getId(), m.getRating());
+		StringEntity params = null;
+		String jsonResponse = null;
+		try {
+			params = new StringEntity(gson.toJson(rating));
+			params.setContentType("application/json");
+			Log.i(this.getClass().toString(), "Put params are " + params);
+			httpPut.setEntity(params);
+			jsonResponse = makeRequest(httpPut);
+			Log.i(this.getClass().toString(), "Response was: " + jsonResponse);
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			Log.e(this.getClass().toString(), e.toString());
+		}
+		
 		return parseJsonMovie(jsonResponse);
 	}
 
@@ -112,6 +138,7 @@ public class RecommenderClient {
 			Movies movies = new Movies();
 			JSONArray entries    = jObject.getJSONArray("movies");
 			Log.i(this.getClass().toString(), "Entries are: " + entries.length());
+			Log.i(this.getClass().toString(), "Entries: " + entries);
 			for (int i=0; i<entries.length(); i++) {
 				JSONObject entry      = entries.getJSONObject(i);
 				long id               = entry.getLong("movieId");
@@ -135,12 +162,12 @@ public class RecommenderClient {
 		try {
 			JSONObject jObject   = new JSONObject(jsonString);
 			//Log.i(this.getClass().toString(), "JSON Object: " + jObject);
-			JSONArray entries    = jObject.getJSONArray("movies");
-			Log.i(this.getClass().toString(), "Entries are: " + entries.length());
-			JSONObject entry      = entries.getJSONObject(0);
-			long id               = entry.getLong("movieId");
-			String title          = entry.getString("title");
-			float rating		  = entry.getLong("rating");
+			//JSONArray entries    = jObject.getJSONArray("");
+			//Log.i(this.getClass().toString(), "Entries are: " + entries.length());
+			//JSONObject entry      = entries.getJSONObject(0);
+			long id               = jObject.getLong("movieId");
+			String title          = jObject.getString("title");
+			float rating		  = jObject.getLong("rating");
 			
 			return new Movie(id, title, rating);
 			
@@ -154,12 +181,12 @@ public class RecommenderClient {
 	 * @return result a JSON response from the server
 	 */
 	private String makeRequest(HttpUriRequest request) {
-
+		Log.i(this.getClass().toString(), "Making request: " +request.getAllHeaders());
 		String result = "";
 		try {
 			HttpResponse response = client.execute(request);
 			int statusCode = response.getStatusLine().getStatusCode();
-			if (statusCode == 200) {
+			if (statusCode == 200 || statusCode == 201) {
 				HttpEntity entity = response.getEntity();
 				InputStream content = entity.getContent();
 				BufferedReader reader = new BufferedReader(new InputStreamReader(content), 65536);
@@ -182,19 +209,23 @@ public class RecommenderClient {
 	public static Bitmap getImageFromTitle(String movieTitle) {
 		//Replace spaces with +
 		movieTitle = movieTitle.replace(' ', '+');
+		Log.i(RecommenderClient.class.toString(), "New movie title: " + movieTitle);
 		//Get first occurence of '('' to find year
 		int firstParenthesis = movieTitle.indexOf('(');
 		String year = null;
 		if (firstParenthesis != -1) {
 			year = movieTitle.substring(firstParenthesis+1, firstParenthesis + 5);
 		}
+		Log.i(RecommenderClient.class.toString(), "Year: " + year);
+
 		/* Check to see if there is a comma
 						   E.g Shawshank Redemption, The (1994) => Shawshank Redemption
 		 */
-		int firstComma = movieTitle.indexOf(',');
-		movieTitle = (firstComma == -1) ? movieTitle : movieTitle.substring(0,firstComma);
 
-		String friendlyMovieTitle = (firstParenthesis == -1) ? movieTitle : movieTitle.substring(0, firstParenthesis-1);
+		movieTitle = (firstParenthesis == -1) ? movieTitle : movieTitle.substring(0, firstParenthesis-1);
+		int firstComma = movieTitle.indexOf(',');
+
+		String friendlyMovieTitle = (firstComma == -1) ? movieTitle : movieTitle.substring(0,firstComma);
 		final String request = (year == null) ? friendlyMovieTitle : friendlyMovieTitle + "&y=" + year;
 		//Use OMDBApi to request movie image using friendly title and year
 
