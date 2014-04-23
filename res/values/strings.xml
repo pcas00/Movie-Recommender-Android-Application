@@ -7,5 +7,12 @@
     <string name="recommend_movies">Recommended Movies</string>
     <string name="recommended_movies_title">Recommended Movies</string>
     <string name="my_movies">My Movies</string>
+    <string name="ok">Okay</string>
+    <string name="no_internet_dialog_msg">You cannot use this without an internet connection.</string>
+    <string name="no_internet_dialog_title">No Internet Connection Found</string>
+    <string name="title_activity_rate_movie">RateMovieActivity</string>
+    <string name="rate_movie">Rate Movie</string>
+    <string name="rated_movie_d_title">Movie Rating</string>
+    <string name="rated_movie_d_msg">You have successfully rated this movie</string>
 
 </resources>
