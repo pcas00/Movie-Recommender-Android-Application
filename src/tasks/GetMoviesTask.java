@@ -39,18 +39,20 @@ public class GetMoviesTask extends AsyncTask<Long, Void, Movies> {
 	
 	private Movies getRatedMovies(long userId) {
 		RecommenderClient client = new RecommenderClient(userId);
-		Movies recommendedMovies = client.getRatedMovies();
-		return recommendedMovies;
+		Movies ratedMovies = client.getRatedMovies();
+		return ratedMovies;
 
 	}
 
 	// onPostExecute displays the results of the AsyncTask.
 	protected void onPostExecute(Movies recommendedMovies) {
-		List<Movie> allMovies = recommendedMovies.getMovies();
-		for (Movie m : allMovies) {
-			//Add to list of movies; adapter will handle adding them
-			listOfMovies.add(m);
-			adapter.notifyDataSetChanged();	
+		if (recommendedMovies.getMovies() != null) {
+			List<Movie> allMovies = recommendedMovies.getMovies();
+			for (Movie m : allMovies) {
+				//Add to list of movies; adapter will handle adding them
+				listOfMovies.add(m);
+				adapter.notifyDataSetChanged();	
+			}	
 		}
 		dialog.dismiss();
 		

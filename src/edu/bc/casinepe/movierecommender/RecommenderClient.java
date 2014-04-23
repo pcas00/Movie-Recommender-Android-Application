@@ -52,7 +52,6 @@ public class RecommenderClient {
 		try {
 			JSONObject jObject = new JSONObject(response);
 			String imageString = jObject.getString("Poster");
-			Log.i(this.getClass().toString(), "Poster is: " + imageString);
 
 			if (!imageString.equalsIgnoreCase("n/a")) {
 				imageUrl = new URL(imageString);
@@ -70,23 +69,16 @@ public class RecommenderClient {
 	// @return Recommended list of movies
 	public Movies getRecommendedMovies() {
 		HttpGet httpGet = new HttpGet(URI + "movies/db/" + this.userId);
-
+		Log.i(this.getClass().toString(), "URI is: " + URI + "movies/db/" + this.userId);
 		String jsonResponse = makeRequest(httpGet);
-		Log.i(this.getClass().toString(), "HTTP get rec movies: " + jsonResponse);
-		//String jsonResponse = "{\"movies\":[{\"title\":\"Open Season (1996)\",\"rating\":3.0,\"ratingsCount\":0,\"movieId\":402},{\"title\":\"Running Free (2000)\",\"rating\":4.0,\"ratingsCount\":0,\"movieId\":3647},{\"title\":\"Condition Red (1995)\",\"rating\":4.0,\"ratingsCount\":0,\"movieId\":624},{\"title\":\"Smoking/No Smoking (1993)\",\"rating\":4.0,\"ratingsCount\":0,\"movieId\":3530},{\"title\":\"Nueba Yol (1995)\",\"rating\":1.0,\"ratingsCount\":0,\"movieId\":133}]}";
-
 		return parseJsonMovies(jsonResponse);
 
 	}
 	
 	// @return Recommended list of movies
 	public Movies getRatedMovies() {
-		/*HttpGet httpGet = new HttpGet(URI + "movies/");
-
-		String jsonResponse = makeRequest(httpGet);*/
-
-		String jsonResponse = "{\"movies\":[{\"title\":\"Movie One\",\"rating\":3.0,\"ratingsCount\":0,\"movieId\":402},{\"title\":\"Movie two Free (2000)\",\"rating\":4.0,\"ratingsCount\":0,\"movieId\":3647},{\"title\":\"Movie three (1995)\",\"rating\":4.0,\"ratingsCount\":0,\"movieId\":624},{\"title\":\"Movie 6 (1993)\",\"rating\":4.0,\"ratingsCount\":0,\"movieId\":3530},{\"title\":\"Nueba Yol (1995)\",\"rating\":1.0,\"ratingsCount\":0,\"movieId\":133}]}";
-
+		HttpGet httpGet = new HttpGet(URI + "user/"+ MainActivity.USER_ID + "/movies");
+		String jsonResponse = makeRequest(httpGet);
 		return parseJsonMovies(jsonResponse);
 
 	}
@@ -94,8 +86,6 @@ public class RecommenderClient {
 	public Movie getMovie(long movieId) {
 		HttpGet httpGet = new HttpGet(URI + "movie/" + movieId);
 		String jsonResponse = makeRequest(httpGet);
-		//String jsonResponse = "{\"movies\":[{\"title\":\"Open Season (1996)\",\"rating\":3.0,\"ratingsCount\":0,\"movieId\":402}]}";
-
 		return parseJsonMovie(jsonResponse);
 	}
 
@@ -104,8 +94,6 @@ public class RecommenderClient {
 	 */
 	public Movie rateMovie(long userId, Movie m) {		
 		HttpPut httpPut = new HttpPut(URI + "rate/" + m.getId());
-		Log.i(this.getClass().toString(), "HTTP Put for user " + userId + " to " + URI + "rate/" + m.getId());
-		
 		Gson gson = new Gson();
 		Rating rating = new Rating(userId, m.getId(), m.getRating());
 		StringEntity params = null;
@@ -113,10 +101,8 @@ public class RecommenderClient {
 		try {
 			params = new StringEntity(gson.toJson(rating));
 			params.setContentType("application/json");
-			Log.i(this.getClass().toString(), "Put params are " + params);
 			httpPut.setEntity(params);
 			jsonResponse = makeRequest(httpPut);
-			Log.i(this.getClass().toString(), "Response was: " + jsonResponse);
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -131,14 +117,10 @@ public class RecommenderClient {
 	 * @return movies list of movies extracted from JSON string
 	 */
 	private Movies parseJsonMovies(String jsonString) {
-		String result = "";
+		Movies movies = new Movies();
 		try {
 			JSONObject jObject   = new JSONObject(jsonString);
-			//Log.i(this.getClass().toString(), "JSON Object: " + jObject);
-			Movies movies = new Movies();
 			JSONArray entries    = jObject.getJSONArray("movies");
-			Log.i(this.getClass().toString(), "Entries are: " + entries.length());
-			Log.i(this.getClass().toString(), "Entries: " + entries);
 			for (int i=0; i<entries.length(); i++) {
 				JSONObject entry      = entries.getJSONObject(i);
 				long id               = entry.getLong("movieId");
@@ -148,10 +130,13 @@ public class RecommenderClient {
 				movies.addMovie(m);		
 			}
 
-			return movies;
 		} catch (JSONException e) {
+			Log.e(this.getClass().toString(), "JSON Exception: " + e.getMessage());
 			return null;
 		}
+		
+		return movies;
+
 	}
 
 	/* helper function that parses JSON for a Movie object
@@ -159,21 +144,22 @@ public class RecommenderClient {
 	 * @return movie a movie extracted from JSON string
 	 */
 	private Movie parseJsonMovie(String jsonString) {
+		Movie m = new Movie();
 		try {
 			JSONObject jObject   = new JSONObject(jsonString);
-			//Log.i(this.getClass().toString(), "JSON Object: " + jObject);
-			//JSONArray entries    = jObject.getJSONArray("");
-			//Log.i(this.getClass().toString(), "Entries are: " + entries.length());
-			//JSONObject entry      = entries.getJSONObject(0);
 			long id               = jObject.getLong("movieId");
 			String title          = jObject.getString("title");
 			float rating		  = jObject.getLong("rating");
-			
-			return new Movie(id, title, rating);
+			m.setId(id);
+			m.setTitle(title);
+			m.setRating(rating);
 			
 		} catch (JSONException e) {
+			Log.e(this.getClass().toString(), "JSON Exception: " + e.getMessage());
 			return null;
 		}
+		
+		return m;
 	}
 
 	/*
@@ -181,7 +167,6 @@ public class RecommenderClient {
 	 * @return result a JSON response from the server
 	 */
 	private String makeRequest(HttpUriRequest request) {
-		Log.i(this.getClass().toString(), "Making request: " +request.getAllHeaders());
 		String result = "";
 		try {
 			HttpResponse response = client.execute(request);
@@ -209,14 +194,12 @@ public class RecommenderClient {
 	public static Bitmap getImageFromTitle(String movieTitle) {
 		//Replace spaces with +
 		movieTitle = movieTitle.replace(' ', '+');
-		Log.i(RecommenderClient.class.toString(), "New movie title: " + movieTitle);
 		//Get first occurence of '('' to find year
 		int firstParenthesis = movieTitle.indexOf('(');
 		String year = null;
 		if (firstParenthesis != -1) {
 			year = movieTitle.substring(firstParenthesis+1, firstParenthesis + 5);
 		}
-		Log.i(RecommenderClient.class.toString(), "Year: " + year);
 
 		/* Check to see if there is a comma
 						   E.g Shawshank Redemption, The (1994) => Shawshank Redemption
@@ -240,7 +223,6 @@ public class RecommenderClient {
 		try {
 			InputStream is = movieImageUrl.openConnection().getInputStream();
 			bm = BitmapFactory.decodeStream(is);
-			Log.i(MovieImageTask.class.toString(), "imageValue is: " + bm);
 		} catch (MalformedURLException e) {
 			Log.e(MovieImageTask.class.toString(), e.getMessage());
 		} catch (IOException e) {

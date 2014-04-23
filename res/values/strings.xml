@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">MovieRecommender</string>
+    <string name="app_name">Movie Recommender</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
     <string name="recommend_movies">Recommended Movies</string>
@@ -14,5 +14,8 @@
     <string name="rate_movie">Rate Movie</string>
     <string name="rated_movie_d_title">Movie Rating</string>
     <string name="rated_movie_d_msg">You have successfully rated this movie</string>
+    <string name="you_rated_this_movie_with">You rated this movie with:</string>
+    <string name="no_movies">No Movies To Display</string>
+    <string name="rated_movies_title">My Rated Movies</string>
 
 </resources>

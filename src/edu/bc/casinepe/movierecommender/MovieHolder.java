@@ -8,6 +8,7 @@ public class MovieHolder {
 	private View row;
 	private TextView movieTitleTextView = null;
 	private ImageView movieImageView = null;
+	private TextView numOfStarsRated = null;
 	
 	public MovieHolder(View row) {
 		this.row = row;
@@ -25,5 +26,12 @@ public class MovieHolder {
 			this.movieImageView = (ImageView) row.findViewById(R.id.movie_image_view);
 		}
 		return this.movieImageView; 
+	}
+	
+	public TextView getNumStarsRating() {
+		if (this.numOfStarsRated == null) {
+			this.numOfStarsRated = (TextView) row.findViewById(R.id.num_of_stars_rating);
+		}
+		return this.numOfStarsRated; 
 	}
 }

@@ -1,30 +1,25 @@
 package tasks;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-
 import edu.bc.casinepe.movierecommender.R;
 import edu.bc.casinepe.movierecommender.RecommenderClient;
-import edu.bc.casinepe.movierecommender.R.drawable;
-
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.ImageView;
+import api.Movie;
 
 public class MovieImageTask extends AsyncTask<String, String, Bitmap> {
 	private ImageView imageView;
 	private ProgressDialog dialog;
+	private Movie movie;
 
 	
-	public MovieImageTask(ImageView imageView, Context context) {
+	public MovieImageTask(ImageView imageView, Context context, Movie movie) {
 		this.imageView = imageView;
-		dialog = new ProgressDialog(context);
+		this.dialog = new ProgressDialog(context);
+		this.movie = movie;
 	}
 	
     @Override
@@ -39,9 +34,7 @@ public class MovieImageTask extends AsyncTask<String, String, Bitmap> {
 	
 	@Override
 	protected Bitmap doInBackground(String... params) {
-		Log.i(this.getClass().toString(), "Title is " + params[0]);
 		Bitmap bm = RecommenderClient.getImageFromTitle(params[0]);	
-		Log.i(this.getClass().toString(), "Bit is: " + bm);
 		return bm;
 	}
 
@@ -50,11 +43,13 @@ public class MovieImageTask extends AsyncTask<String, String, Bitmap> {
 		
 		if (bm == null) {
 			this.imageView.setImageResource(R.drawable.no_movie_poster);
-			Log.i(this.getClass().toString(), "ImageURL was null");
+			//movie.setBitmapLoaded(true);
 		} else {
 			this.imageView.setImageBitmap(bm);
+			//movie.setBitmap(bm);
 		}
 		
+				
 		dialog.dismiss();
 	
 	}

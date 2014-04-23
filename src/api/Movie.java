@@ -4,12 +4,13 @@ import java.io.Serializable;
 
 import android.graphics.Bitmap;
 
-public class Movie implements Serializable {
+public class Movie {
 	
 	private long id;
 	private String title;
 	private float rating;
-	private Bitmap bm;
+	private Bitmap bm = null;
+	private boolean bitmapLoaded = false;
 	
 	public Movie() {}
 	public Movie(long id, String title, float rating) {
@@ -20,6 +21,11 @@ public class Movie implements Serializable {
 	
 	public void setBitmap(Bitmap bm) {
 		this.bm = bm;
+		this.bitmapLoaded = true;
+	}
+	
+	public void setBitmapLoaded(boolean b) {
+		this.bitmapLoaded = b;
 	}
 	
 	public void setId(long id) {
@@ -32,6 +38,7 @@ public class Movie implements Serializable {
 		this.rating = rating;
 	}
 
+	public boolean bitmapIsLoaded() { return this.bitmapLoaded; }
 	public Bitmap getBitmap() { return this.bm; }
 	public long getId() { return this.id; }
 	public String getTitle() { return this.title; }

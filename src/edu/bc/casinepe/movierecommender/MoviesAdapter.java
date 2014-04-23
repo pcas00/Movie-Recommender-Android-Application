@@ -22,9 +22,10 @@ import android.widget.TextView;
 import api.Movie;
 
 public class MoviesAdapter extends ArrayAdapter<Movie>{
-
-	public MoviesAdapter(Context context, List<Movie> movies) {
-		super(context, R.layout.movie_item, movies);
+	int layout;
+	public MoviesAdapter(Context context, List<Movie> movies, int layout) {
+		super(context, layout, movies);
+		this.layout = layout;
 	}
 	
 	@Override
@@ -35,7 +36,7 @@ public class MoviesAdapter extends ArrayAdapter<Movie>{
 		View view = null;
 		
 		if (convertView == null) {
-			view = inflator.inflate(R.layout.movie_item, null, false);
+			view = inflator.inflate(layout, null, false);
 			holder = new MovieHolder(view);
 			view.setTag(holder);
 		} else {
@@ -45,9 +46,21 @@ public class MoviesAdapter extends ArrayAdapter<Movie>{
 		
 		Movie movie = getItem(position);
 		holder.getMovieTitleTextView().setText(movie.getTitle());
-		//holder.getMovieImageView().setImageBitmap(movie.getBitmap());
+		if (layout == R.layout.rated_movie_item) {
+			holder.getNumStarsRating().setText(view.getContext().getString(R.string.you_rated_this_movie_with) + " " + movie.getRating());
+		}
+
 		//Download image asynchronously
-		new MovieImageTask(holder.getMovieImageView(), getContext()).execute(movie.getTitle());
+		/*if (!movie.bitmapIsLoaded()) {
+			Log.i(this.getClass().toString(), "Movie: " + movie.getTitle() + " Bitmap is not loaded; get asynchronously");*/
+			new MovieImageTask(holder.getMovieImageView(), getContext(), movie).execute(movie.getTitle());	
+		/*} else if (movie.bitmapIsLoaded() && movie.getBitmap() == null) {
+			Log.i(this.getClass().toString(), "Movie: " + movie.getTitle() + " BitMap is loaded but it is no poster");
+			holder.getMovieImageView().setImageResource(R.drawable.no_movie_poster);
+		} else {
+			Log.i(this.getClass().toString(), "Movie: " + movie.getTitle() + " Bitmap is loaded and ithas an image");
+			holder.getMovieImageView().setImageBitmap(movie.getBitmap());
+		}*/
 		
 		return view;
 		

@@ -4,6 +4,8 @@ import tasks.GetMovieTask;
 
 import com.google.gson.Gson;
 
+import fragments.MyMoviesFragment;
+
 import android.os.Bundle;
 import android.app.ActionBar;
 import android.app.Activity;
@@ -27,7 +29,6 @@ public class RateMovieActivity extends Activity {
 		Intent intent = getIntent();
 		Gson gson = new Gson();
 	    this.movie = gson.fromJson(intent.getStringExtra(MyMoviesFragment.MOVIE), Movie.class);
-	    Log.i(this.getClass().toString(), "Movie id is: " + movie.getId());
 	    
 		ActionBar actionBar = getActionBar();
 		actionBar.setDisplayHomeAsUpEnabled(true);

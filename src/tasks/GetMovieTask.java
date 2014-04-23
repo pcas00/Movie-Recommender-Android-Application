@@ -48,26 +48,26 @@ public class GetMovieTask extends AsyncTask<Movie, Void, Movie>{
 	
 	private Movie getMovie(Movie movie) {
 		RecommenderClient client = new RecommenderClient(MainActivity.USER_ID);
-		Log.i(this.getClass().toString(), "movie id: " + movie.getId());
 		Movie newMovie = client.getMovie(movie.getId());
-		Log.i(this.getClass().toString(), "new movie: " + newMovie);
-		newMovie.setBitmap(RecommenderClient.getImageFromTitle(newMovie.getTitle()));
+		if (newMovie != null) {
+			newMovie.setBitmap(RecommenderClient.getImageFromTitle(newMovie.getTitle()));	
+		}
 		return newMovie;
 		
 	}
 
 	// onPostExecute displays the results of the AsyncTask.
 	protected void onPostExecute(Movie m) {
-		movieTitle.setText(m.getTitle());
-		Log.i(this.getClass().toString(), "Rating is " + m.getRating());
-		movieRating.setRating(m.getRating());
-		Bitmap bm = m.getBitmap();
-		if (bm == null) {
-			movieImage.setImageResource(R.drawable.no_movie_poster);
-		} else {
-			movieImage.setImageBitmap(m.getBitmap());
+		if (m != null) {
+			movieTitle.setText(m.getTitle());
+			movieRating.setRating(m.getRating());
+			Bitmap bm = m.getBitmap();
+			if (bm == null) {
+				movieImage.setImageResource(R.drawable.no_movie_poster);
+			} else {
+				movieImage.setImageBitmap(m.getBitmap());
+			}	
 		}
-		
 		dialog.dismiss();		
 	}
 }

@@ -11,7 +11,14 @@ public class Movies {
 		movies = new ArrayList<Movie>();
 	}
 	
-	public List<Movie> getMovies() { return this.movies; }
+	public List<Movie> getMovies() { 
+		if (movies.isEmpty()) {
+			return null;
+		} else {
+			return this.movies;
+		}
+	}
+	
 	public void addMovie(Movie m) { movies.add(m); }
 
 }
