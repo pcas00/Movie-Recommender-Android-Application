@@ -3,12 +3,19 @@ package edu.bc.casinepe.movierecommender;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-	
+
+import com.google.gson.Gson;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.FragmentTransaction;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -21,7 +28,6 @@ import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
-import android.widget.Toast;
 
 public class MainActivity extends FragmentActivity implements
 ActionBar.TabListener {
@@ -40,15 +46,15 @@ ActionBar.TabListener {
 	 * The {@link ViewPager} that will host the section contents.
 	 */
 	ViewPager mViewPager;
-	
+
 	//Default user_id used to access movies and recommendations
 	public static final long USER_ID = 40;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
+
 		// Set up the action bar.
 		final ActionBar actionBar = getActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
@@ -83,7 +89,7 @@ ActionBar.TabListener {
 					.setText(mSectionsPagerAdapter.getPageTitle(i))
 					.setTabListener(this));
 		}
-		
+
 	}
 
 	@Override
@@ -111,7 +117,6 @@ ActionBar.TabListener {
 	@Override
 	public void onTabReselected(ActionBar.Tab tab,
 			FragmentTransaction fragmentTransaction) {
-		Toast.makeText(this, "Reselected", Toast.LENGTH_SHORT).show();
 	}
 
 	/**
@@ -156,49 +161,120 @@ ActionBar.TabListener {
 }
 
 class AllMoviesFragment extends ListFragment {
-	
-	private ListView listOfMovies = null;
+
 	private List<Movie> movies;
-	
+	public static final String MOVIE_ID = "movie_id";
+
 	public AllMoviesFragment() {
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		
+
 		Log.i(this.getClass().toString(), "ALlMoviesFragment onCreateView");
 		View rootView = inflater.inflate(R.layout.recommended_movies_fragment,
 				container, false);
-		
-		listOfMovies = (ListView) rootView.findViewById(android.R.id.list);
+
 		movies = new ArrayList<Movie>();
 		//Need an adapter for movies so that a view can be inflated with data
 		MoviesAdapter adapter = new MoviesAdapter(getActivity(), movies);
 		setListAdapter(adapter);
 		//listOfMovies.setAdapter(adapter);
-		new DownloadRecommendedMoviesTask(adapter, movies).execute(MainActivity.USER_ID);		
+		ConnectivityManager connMgr = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+		if (networkInfo != null && networkInfo.isConnected()) {
+			new GetRecommendedMoviesTask(adapter, movies, getActivity()).execute(MainActivity.USER_ID);		
+
+			//No internet, show error dialog
+		} else {
+			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+			builder.setTitle(R.string.no_internet_dialog_title)
+				   .setMessage(R.string.no_internet_dialog_msg)
+				   .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							dialog.cancel();
+						}
+				   });
+
+			// Create the AlertDialog
+			AlertDialog dialog = builder.create();
+			dialog.show();
+		}
 
 		return rootView;
+	}
+
+	@Override
+	public void onListItemClick(ListView l, View v, int pos, long id) {
+		super.onListItemClick(l, v, pos, id);
+		Intent intent = new Intent(getActivity(), RateMovieActivity.class);
+		Movie m = (Movie) l.getItemAtPosition(pos);
+		Gson gson = new Gson();
+		intent.putExtra(MyMoviesFragment.MOVIE, gson.toJson(m));
+		startActivity(intent);
 	}
 
 	public void onResume() {
 		super.onResume();
 	}
 }
+
+
+class MyMoviesFragment extends ListFragment {
+	public static final String MOVIE = "movie";
+	private List<Movie> movies;
 	
-
-class MyMoviesFragment extends Fragment {
-
 	public MyMoviesFragment() {
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		Log.i(this.getClass().toString(), "MyMoviesFragment onCreateView");
+
 		View rootView = inflater.inflate(R.layout.recommended_movies_fragment,
 				container, false);
 		
+		movies = new ArrayList<Movie>();
+		//Need an adapter for movies so that a view can be inflated with data
+		MoviesAdapter adapter = new MoviesAdapter(getActivity(), movies);
+		setListAdapter(adapter);
+		//listOfMovies.setAdapter(adapter);
+		ConnectivityManager connMgr = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+		if (networkInfo != null && networkInfo.isConnected()) {
+			new GetMoviesTask(adapter, movies, getActivity()).execute(MainActivity.USER_ID);		
+
+			//No internet, show error dialog
+		} else {
+			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+			builder.setTitle(R.string.no_internet_dialog_title)
+				   .setMessage(R.string.no_internet_dialog_msg)
+				   .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							dialog.cancel();
+						}
+				   });
+
+			// Create the AlertDialog
+			AlertDialog dialog = builder.create();
+			dialog.show();
+		}
+
 		return rootView;
 	}
+	
+	@Override
+	public void onListItemClick(ListView l, View v, int pos, long id) {
+		super.onListItemClick(l, v, pos, id);
+		Intent intent = new Intent(getActivity(), RateMovieActivity.class);
+		Movie m = (Movie) l.getItemAtPosition(pos);
+		Gson gson = new Gson();
+		intent.putExtra(MyMoviesFragment.MOVIE, gson.toJson(m));
+		startActivity(intent);
+	}
 }
+
 
